@@ -5,6 +5,7 @@ import { Post, Get, Patch, Delete, Body, Param } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { UpdateDeviceDto } from '../dto/update-device.dto';
 import { CreateDeviceDto } from '../dto/create-device.dto';
+import { DevicesInformationsDto } from '../dto/devices-informations.dto'; // Não se esqueça de importar sua DTO de informação aqui!
 
 @Controller('devices')
 export class DevicesController {
@@ -19,7 +20,14 @@ export class DevicesController {
         return this.devicesService.create(createDeviceDto);
     }
 
-    @Get()
+    @Get('devices-informations') // Rota: GET /devices/devices-informations
+    @ApiOperation({ summary: 'Retrieves all devices with detailed information for display.' }) // Melhor descrição
+    @ApiResponse({ status: 200, description: 'List of devices with detailed information.', type: [DevicesInformationsDto] }) // Especifique o tipo de retorno
+    async findDeviceInformation() {
+        return this.devicesService.findDeviceInformation();
+    }
+
+    @Get() 
     @ApiOperation({ summary: 'Retrieves all registered devices.' })
     @ApiResponse({ status: 200, description: 'List of devices.' })
     async findAll() {
@@ -53,5 +61,4 @@ export class DevicesController {
     async remove(@Param('id') id: number) {
         return this.devicesService.remove(id);
     }
-
 }

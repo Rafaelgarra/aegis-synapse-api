@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsDateString, IsOptional, IsNotEmpty } from 'class-validator';
+import { IsString, IsDateString, IsOptional, IsNotEmpty, IsNumber, Min } from 'class-validator';
 
 export class CreateMissionDto {
     @ApiProperty({
@@ -35,8 +35,18 @@ export class CreateMissionDto {
 
     @ApiProperty({
         description: 'ID do dispositivo aéreo que realizará a missão',
-        example: 1,
+        example: 2,
     })
     @IsNotEmpty()
     deviceId: number;
+
+    @ApiProperty({
+        description: 'ID do status da missão inicial do dispositivo. Deve ser um ID de um status existente na tabela de "statuses".',
+        example: 1, // Adjusted to 0 for consistency with your @Min(0) validator
+        minimum: 0, // Adjusted to 0 for consistency with your @Min(0) validator
+      })
+      @IsNotEmpty({ message: 'O ID do status operacional é obrigatório.' })
+      @IsNumber({}, { message: 'O ID do status operacional deve ser um número.' })
+      @Min(0, { message: 'O ID do status operacional deve ser maior ou igual a 0.' })
+      missionStatusId: number; // Renamed to missionStatusId
 }

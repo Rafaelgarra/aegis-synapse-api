@@ -1,60 +1,52 @@
-// src/devices/dto/create-device.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsDateString, Length, IsNumber, Min } from 'class-validator';
+import { IsString, IsNotEmpty, IsDateString, IsNumber, Min, Max, IsEnum, IsInt } from 'class-validator';
+import { DeviceConnectivityStatus } from 'src/common/enums/device/device-connectivity-status.enum';
+import { DeviceOperationMode } from 'src/common/enums/device/device-operation-mode.enum';
+import { DevicePowerMode } from 'src/common/enums/device/device-power-mode.enum';
 
 export class CreateDeviceDto {
-  @ApiProperty({
-    description: 'Nome amigável do dispositivo (ex: "Aegis Drone X1", "Rover Explorer Y")',
-    example: 'Aegis Test X1',
-    minLength: 3,
-    maxLength: 255,
-  })
-  @IsNotEmpty({ message: 'O nome do dispositivo não pode ser vazio.' })
-  @IsString({ message: 'O nome do dispositivo deve ser uma string.' })
-  @Length(3, 255, { message: 'O nome do dispositivo deve ter entre 3 e 255 caracteres.' })
+  @ApiProperty({ description: 'Nome do dispositivo', example: 'Aegis Sentinel Mk-I' })
+  @IsString()
+  @IsNotEmpty()
   deviceName: string;
 
-  @ApiProperty({
-    description: 'Número de série único do dispositivo.',
-    example: 'SN-AEGIS-X1-001A',
-    // uniqueItems: true, // This is a validator-level constraint, not an ApiProperty attribute.
-    minLength: 5,
-    maxLength: 255,
-  })
-  @IsNotEmpty({ message: 'O número de série não pode ser vazio.' })
-  @IsString({ message: 'O número de série deve ser uma string.' })
-  @Length(5, 255, { message: 'O número de série deve ter entre 5 e 255 caracteres.' })
+  @ApiProperty({ description: 'Número de série único do dispositivo', example: 'AESENT-001-XYZ' })
+  @IsString()
+  @IsNotEmpty()
   serialNumber: string;
 
-  @ApiProperty({
-    description: 'Modelo específico do dispositivo (ex: "Drone de Reconhecimento", "Submarino Autônomo").',
-    example: 'Drone de Reconhecimento',
-    minLength: 3,
-    maxLength: 255,
-  })
-  @IsNotEmpty({ message: 'O modelo não pode ser vazio.' })
-  @IsString({ message: 'O modelo deve ser uma string.' })
-  @Length(3, 255, { message: 'O modelo deve ter entre 3 e 255 caracteres.' })
+  @ApiProperty({ description: 'Modelo do dispositivo', example: 'Sentient 3000' })
+  @IsString()
+  @IsNotEmpty()
   model: string;
 
-  @ApiProperty({
-    description: 'Data de fabricação do dispositivo no formato ISO 8601 (ex: "2023-01-15").',
-    example: '2023-01-15',
-  })
-  @IsNotEmpty({ message: 'A data de fabricação não pode ser vazia.' })
-  @IsDateString({}, { message: 'A data de fabricação deve ser uma string de data válida (ISO 8601).' })
-  // For `manufactureDate: Date`, you typically send it as an ISO 8601 string from the client.
-  // The @IsDateString() decorator validates this string.
-  // If you need it as a Date object in your service, consider using a @Transform() decorator.
-  manufactureDate: Date; 
+  @ApiProperty({ description: 'Data de fabricação do dispositivo (formato YYYY-MM-DD)', example: '2023-01-15' })
+  @IsDateString()
+  @IsNotEmpty()
+  manufactureDate: Date;
 
-  @ApiProperty({
-    description: 'ID do status operacional inicial do dispositivo. Deve ser um ID de um status existente na tabela de "statuses".',
-    example: 0, // Adjusted to 0 for consistency with your @Min(0) validator
-    minimum: 0, // Adjusted to 0 for consistency with your @Min(0) validator
-  })
-  @IsNotEmpty({ message: 'O ID do status operacional é obrigatório.' })
-  @IsNumber({}, { message: 'O ID do status operacional deve ser um número.' })
-  @Min(0, { message: 'O ID do status operacional deve ser maior ou igual a 0.' })
+  @ApiProperty({ description: 'Nível atual da bateria (0-100)', example: 0 })
+  @IsNumber()
+  @IsInt() // Assumindo que o nível da bateria é um número inteiro (0-100)
+  @Min(0)
+  @Max(100)
+  batteryLevel: number;
+
+  @ApiProperty({ enum: DeviceConnectivityStatus, description: 'Status de conectividade do dispositivo', example: DeviceConnectivityStatus.Offline })
+  @IsEnum(DeviceConnectivityStatus)
+  ConnectionStatus: DeviceConnectivityStatus;
+
+  @ApiProperty({ enum: DeviceOperationMode, description: 'Modo de operação atual do dispositivo', example: DeviceOperationMode.Inactive })
+  @IsEnum(DeviceOperationMode)
+  operationMode: DeviceOperationMode;
+
+  @ApiProperty({ enum: DevicePowerMode, description: 'Modo de gestão de energia do dispositivo', example: DevicePowerMode.PowerOff })
+  @IsEnum(DevicePowerMode)
+  powerMode: DevicePowerMode;
+
+  @ApiProperty({ description: 'ID do status operacional (referencia a tabela StatusEntity)', example: 1 })
+  @IsNumber()
+  @IsInt()
+  @IsNotEmpty()
   operationalStatusId: number;
 }
